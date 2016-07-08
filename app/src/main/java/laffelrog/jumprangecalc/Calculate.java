@@ -3,8 +3,6 @@ package laffelrog.jumprangecalc;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -14,7 +12,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class Calculate extends AppCompatActivity  implements View.OnClickListener {
+import java.text.DecimalFormat;
+
+public class Calculate extends AppCompatActivity implements View.OnClickListener {
 
     public static final String PREFERENCE_FILE = "preferenceFile";
     private static final String JUMP_RANGE_KEY  = "jumpRange";
@@ -24,6 +24,7 @@ public class Calculate extends AppCompatActivity  implements View.OnClickListene
     private EditText tbDistanceSag;
     private TextView lblOptimalJumpRange;
     private Button btCalculate;
+    DecimalFormat df;
 
     private JumpRangeCalculator jumpRangeCalc;
 
@@ -34,40 +35,8 @@ public class Calculate extends AppCompatActivity  implements View.OnClickListene
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-       FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
         setup();
-    }
-
-    private void setup() {
-        tbJumpRange = (EditText) findViewById(R.id.tbJumpRange);
-        tbDistanceSag = (EditText) findViewById(R.id.tbDistanceSag);
-        lblOptimalJumpRange = (TextView) findViewById(R.id.lblOptimalJumpRange);
-        btCalculate = (Button) findViewById(R.id.btCalculate);
-
-        jumpRangeCalc = new JumpRangeCalculator();
-
-        SharedPreferences settings = getSharedPreferences(PREFERENCE_FILE, 0);
-
-        if (settings != null) {
-            double lastJumpRange = (double)settings.getFloat(JUMP_RANGE_KEY, 0);
-            double lastDistanceSag = (double)settings.getFloat(DISTANCE_SAG_KEY, 0);
-
-            if (lastJumpRange > 0) {
-                tbJumpRange.setText(String.format("%.2f", lastJumpRange));
-            }
-
-            if (lastDistanceSag > 0) {
-                tbDistanceSag.setText(String.format("%.2f", lastDistanceSag));
-            }
-        }
+        setStoredValues();
     }
 
     @Override
@@ -90,33 +59,78 @@ public class Calculate extends AppCompatActivity  implements View.OnClickListene
         String jumpRangeString = tbJumpRange.getText().toString();
         String distanceSagString = tbDistanceSag.getText().toString();
 
-        if (jumpRangeString.length() > 0 && distanceSagString.length() > 0) {
-            double jumpRange = Double.parseDouble(jumpRangeString);
-            double distanceSag = Double.parseDouble(distanceSagString);
-
-            if (jumpRange > 0 && distanceSag >= 0) {
-                double optimalJumpRange = jumpRangeCalc.calcOptJumpRange(jumpRange, distanceSag);
-                lblOptimalJumpRange.setTextColor(Color.GREEN);
-                lblOptimalJumpRange.setText(String.format("Optimal jump range: %.2f ly.", optimalJumpRange));
-            } else {
-                lblOptimalJumpRange.setTextColor(Color.RED);
-                lblOptimalJumpRange.setText("Jump range and distance to Sag A* must be greater than 0.");
-            }
-        } else {
-            lblOptimalJumpRange.setTextColor(Color.RED);
-            lblOptimalJumpRange.setText("Insert jump range and distance to Sag A*.");
+        if (jumpRangeString.isEmpty() || distanceSagString.isEmpty()) {
+            setOutput(Color.RED, "Insert jump range and distance to Sag A*.");
+            return;
         }
+
+        double jumpRange = Double.parseDouble(jumpRangeString);
+        double distanceSag = Double.parseDouble(distanceSagString);
+
+        if (jumpRange <= 1 || jumpRange > 500) {
+            setOutput(Color.RED, "Jump range must be greater than 1 and less than 500 ly.");
+            return;
+        }
+
+        if (distanceSag < 0 || distanceSag > 50) {
+            setOutput(Color.RED, "Distance to Sag A* must be a positive number less than 50'000 ly.");
+            return;
+        }
+
+        double optimalJumpRange = jumpRangeCalc.calcOptJumpRange(jumpRange, distanceSag);
+        setOutput(Color.GREEN, String.format("Optimal jump range: %s ly.",df.format(optimalJumpRange)));
     }
 
     @Override
     public void onStop() {
         super.onStop();
+        storeLastValues();
+    }
 
+    private void setup() {
+        tbJumpRange = (EditText) findViewById(R.id.tbJumpRange);
+        tbDistanceSag = (EditText) findViewById(R.id.tbDistanceSag);
+        lblOptimalJumpRange = (TextView) findViewById(R.id.lblOptimalJumpRange);
+        btCalculate = (Button) findViewById(R.id.btCalculate);
+        df = new DecimalFormat("#.##");
+
+        jumpRangeCalc = new JumpRangeCalculator();
+    }
+
+    private void setOutput(int red, String text) {
+        lblOptimalJumpRange.setTextColor(red);
+        lblOptimalJumpRange.setText(text);
+    }
+
+    private void storeLastValues() {
         SharedPreferences settings = getSharedPreferences(PREFERENCE_FILE, 0);
         SharedPreferences.Editor editor = settings.edit();
 
-        editor.putFloat(JUMP_RANGE_KEY, (float)jumpRangeCalc.getLastJumpRange());
-        editor.putFloat(DISTANCE_SAG_KEY, (float)jumpRangeCalc.getLastDistanceSag());
+        if (jumpRangeCalc.getLastJumpRange() > 0) {
+            editor.putFloat(JUMP_RANGE_KEY, (float)jumpRangeCalc.getLastJumpRange());
+        }
+
+        if (jumpRangeCalc.getLastDistanceSag() > 0) {
+            editor.putFloat(DISTANCE_SAG_KEY, (float)jumpRangeCalc.getLastDistanceSag());
+        }
+
         editor.commit();
+    }
+
+    private void setStoredValues() {
+        SharedPreferences settings = getSharedPreferences(PREFERENCE_FILE, 0);
+
+        if (settings != null) {
+            double lastJumpRange = (double)settings.getFloat(JUMP_RANGE_KEY, 0);
+            double lastDistanceSag = (double)settings.getFloat(DISTANCE_SAG_KEY, 0);
+
+            if (lastJumpRange > 0) {
+                tbJumpRange.setText(df.format(lastJumpRange));
+            }
+
+            if (lastDistanceSag > 0) {
+                tbDistanceSag.setText(df.format(lastDistanceSag));
+            }
+        }
     }
 }

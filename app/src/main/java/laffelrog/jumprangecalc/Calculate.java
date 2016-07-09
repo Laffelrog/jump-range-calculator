@@ -64,15 +64,15 @@ public class Calculate extends AppCompatActivity implements View.OnClickListener
             return;
         }
 
-        double jumpRange = Double.parseDouble(jumpRangeString);
-        double distanceSag = Double.parseDouble(distanceSagString);
+        double jumpRange = parseDouble(jumpRangeString);
+        double distanceSag = parseDouble(distanceSagString);
 
-        if (jumpRange <= 1 || jumpRange > 500) {
+        if (Double.isNaN(jumpRange) || jumpRange <= 1 || jumpRange > 500) {
             setOutput(Color.RED, "Jump range must be greater than 1 and less than 500 ly.");
             return;
         }
 
-        if (distanceSag < 0 || distanceSag > 50) {
+        if (Double.isNaN(distanceSag) || distanceSag < 0 || distanceSag > 50) {
             setOutput(Color.RED, "Distance to Sag A* must be a positive number less than 50'000 ly.");
             return;
         }
@@ -132,5 +132,17 @@ public class Calculate extends AppCompatActivity implements View.OnClickListener
                 tbDistanceSag.setText(df.format(lastDistanceSag));
             }
         }
+    }
+
+    private double parseDouble(String number) {
+        double d;
+
+        try {
+            d = Double.parseDouble(number);
+        } catch (NumberFormatException ex) {
+            d = Double.NaN;
+        }
+
+        return d;
     }
 }

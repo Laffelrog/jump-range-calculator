@@ -8,7 +8,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -23,7 +22,6 @@ public class Calculate extends AppCompatActivity implements View.OnClickListener
     private EditText tbJumpRange;
     private EditText tbDistanceSag;
     private TextView lblOptimalJumpRange;
-    private Button btCalculate;
     DecimalFormat df;
 
     private JumpRangeCalculator jumpRangeCalc;
@@ -91,7 +89,6 @@ public class Calculate extends AppCompatActivity implements View.OnClickListener
         tbJumpRange = (EditText) findViewById(R.id.tbJumpRange);
         tbDistanceSag = (EditText) findViewById(R.id.tbDistanceSag);
         lblOptimalJumpRange = (TextView) findViewById(R.id.lblOptimalJumpRange);
-        btCalculate = (Button) findViewById(R.id.btCalculate);
         df = new DecimalFormat("#.##");
 
         jumpRangeCalc = new JumpRangeCalculator();

@@ -2,4 +2,5 @@
     <string name="app_name">Optimal Jump Range Calculator</string>
     <string name="jump_range_text">Maximum jump range in ly</string>
     <string name="distance_sag_text">Distance to Sag A* in 1000 ly</string>
+    <string name="calc_button_text">Calculate</string>
 </resources>

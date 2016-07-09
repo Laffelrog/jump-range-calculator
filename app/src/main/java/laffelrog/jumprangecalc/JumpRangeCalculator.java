@@ -1,6 +1,6 @@
 package laffelrog.jumprangecalc;
 
-public class JumpRangeCalculator {
+class JumpRangeCalculator {
 
     private double lastJumpRange;
     private double lastDistanceSag;

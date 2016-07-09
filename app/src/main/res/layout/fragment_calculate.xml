@@ -20,7 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Maximum jump range in ly"
+            android:text="@string/jump_range_text"
             android:id="@+id/lblJumpRange"
             android:layout_gravity="center_horizontal" />
 
@@ -36,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Distance to Sag A* in 1000 ly"
+            android:text="@string/distance_sag_text"
             android:id="@+id/lblDistanceSag"
             android:layout_gravity="center_horizontal" />
 

@@ -15,14 +15,14 @@ import java.text.DecimalFormat;
 
 public class Calculate extends AppCompatActivity implements View.OnClickListener {
 
-    public static final String PREFERENCE_FILE = "preferenceFile";
+    private static final String PREFERENCE_FILE = "preferenceFile";
     private static final String JUMP_RANGE_KEY  = "jumpRange";
     private static final String DISTANCE_SAG_KEY  = "distanceSag";
 
     private EditText tbJumpRange;
     private EditText tbDistanceSag;
     private TextView lblOptimalJumpRange;
-    DecimalFormat df;
+    private DecimalFormat df;
 
     private JumpRangeCalculator jumpRangeCalc;
 
@@ -111,7 +111,7 @@ public class Calculate extends AppCompatActivity implements View.OnClickListener
             editor.putFloat(DISTANCE_SAG_KEY, (float)jumpRangeCalc.getLastDistanceSag());
         }
 
-        editor.commit();
+        editor.apply();
     }
 
     private void setStoredValues() {
